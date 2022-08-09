@@ -484,14 +484,23 @@ public class MeshT : IMesh
 
             var clusterBoundary = clustersRects[i];
 
-            Debug.WriteLine("Cluster boundary (percentage): " + clusterBoundary);
+            Console.WriteLine("Cluster boundary (percentage): " + clusterBoundary);
 
             var clusterX = (int)Math.Ceiling(clusterBoundary.Left * textureWidth);
             var clusterY = (int)Math.Ceiling(clusterBoundary.Top * textureHeight);
-            var clusterWidth = (int)Math.Max(Math.Ceiling(clusterBoundary.Width * textureWidth), 1);
-            var clusterHeight = (int)Math.Max(Math.Ceiling(clusterBoundary.Height * textureHeight), 1);
+            var clusterWidth = (int)Math.Max(Math.Ceiling(Math.Min(clusterBoundary.Width, 1) * textureWidth), 1);
+            var clusterHeight = (int)Math.Max(Math.Ceiling(Math.Min(clusterBoundary.Height, 1) * textureHeight), 1);
+            if (clusterX + clusterWidth > 1)
+            {
+                clusterWidth = clusterWidth - ((clusterX + clusterWidth) - 1);
+            }
 
-            Debug.WriteLine(
+            if (clusterY + clusterHeight > 1)
+            {
+                clusterHeight = clusterHeight - ((clusterY + clusterHeight) - 1);
+            }
+
+            Console.WriteLine(
                 $"Cluster boundary (pixel): ({clusterX},{clusterY}) size {clusterWidth}x{clusterHeight}");
 
             var newTextureClusterRect = binPack.Insert(clusterWidth, clusterHeight,
@@ -529,11 +538,11 @@ public class MeshT : IMesh
                         $"Find room for cluster in a newly created texture, this is not supposed to happen. {clusterWidth}x{clusterHeight} in {edgeLength}x{edgeLength} with occupancy {binPack.Occupancy()}");
             }
 
-            Debug.WriteLine("Found place for cluster at " + newTextureClusterRect);
 
             // Too long to explain this here, but it works
             var adjustedSourceY = Math.Max(texture.Height - (clusterY + clusterHeight), 0);
             var adjustedDestY = Math.Max(edgeLength - (newTextureClusterRect.Y + clusterHeight), 0);
+            Console.WriteLine($"Found place for cluster at {newTextureClusterRect} adjustedSourceY:{adjustedSourceY}");
 
             Common.CopyImage(texture, newTexture, Math.Max(clusterX, 0), adjustedSourceY, clusterWidth, clusterHeight,
                 newTextureClusterRect.X, adjustedDestY);
@@ -541,7 +550,7 @@ public class MeshT : IMesh
             var textureScaleX = (double)textureWidth / edgeLength;
             var textureScaleY = (double)textureHeight / edgeLength;
 
-            Debug.WriteLine("Texture copied, now updating texture vertex coordinates");
+            Console.WriteLine("Texture copied, now updating texture vertex coordinates");
 
             for (var index = 0; index < cluster.Count; index++)
             {

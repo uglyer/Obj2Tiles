@@ -78,6 +78,7 @@ You can download the [latest release](https://github.com/OpenDroneMap/Obj2Tiles/
 git clone https://github.com/OpenDroneMap/Obj2Tiles.git
 cd Obj2Tiles
 dotnet build -c Release
+dotnet publish -r win-x64 -p:PublishSingleFile=true -p:UseAppHost=true -c Release
 ```
 
 ------------
